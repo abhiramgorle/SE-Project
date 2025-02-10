@@ -105,9 +105,7 @@ const LandingPage = () => {
           <i className="fas fa-search" />
         </button>
       </div>
-      <footer className={footer}>
-        Crafted with <i className="fas fa-heart" /> by Abhiram Gorle
-      </footer>
+      
     </div>
   );
 };
