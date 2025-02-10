@@ -4,15 +4,27 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "start": "vite",
+    "build:dev": "vite build --mode development",
+    "build:prod": "vite build",
+    "preview": "vite preview",
+    "analyze": "open ./reports/build-stats.html",
+    "clean": "pnpm rimraf reports dist node_modules/.vite node_modules/.cache",
+    "lint": "concurrently -g -n \"prettier,stylelint,eslint\" -c \"bgGreen.bold,bgMagenta.bold,bgBlue.bold\" \"pnpm prettier-check\" \"pnpm stylelint-check\" \"pnpm eslint-check\"",
+    "lint:fix": "pnpm eslint-fix && pnpm stylelint-fix && pnpm prettier-fix",
+    "prettier-check": "prettier --loglevel warn --cache --cache-strategy content --cache-location ./node_modules/.cache/.prettiercache --check .",
+    "prettier-fix": "prettier --loglevel warn --cache --cache-strategy content --cache-location ./node_modules/.cache/.prettiercache --write .",
+    "stylelint-check": "stylelint --max-warnings=25 --custom-formatter=node_modules/stylelint-formatter-pretty --aei --cache --cache-strategy content --cache-location ./node_modules/.cache/.stylelintcache '{**/*,*}.{styles.js,jsx,html,css}'",
+    "stylelint-fix": "pnpm stylelint-check --fix",
+    "eslint-check": "eslint --max-warnings=25 --format=pretty --cache --cache-strategy content --cache-location ./node_modules/.cache/.eslintcache '{**/*,*}.{html,js,jsx}'",
+    "eslint-fix": "pnpm eslint-check --fix",
+    "lint-staged": "lint-staged",
+    "cz": "czg"
   },
   "dependencies": {
+    "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "prop-types": "^15.8.1",
     "react-router-dom": "^6.22.3",
     "react-transition-group": "^4.4.5",
     "sanitize.css": "^13.0.0",
@@ -73,5 +85,16 @@
     "vite-plugin-minify": "^1.5.2",
     "vite-plugin-pwa": "^0.14.4",
     "workbox-window": "^6.6.1"
-  }
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "vite": ">=4"
+      }
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@7.29.1"
 }

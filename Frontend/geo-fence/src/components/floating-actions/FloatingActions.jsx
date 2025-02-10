@@ -4,10 +4,10 @@ import './FloatingActions.css';
 const FloatingActions = ({ onDrawClick, onClearClick }) => (
   <div className="floating-actions">
     <button type="button" className="action-btn draw-btn" aria-label="Draw" data-tooltip="Draw" onClick={onDrawClick}>
-      <i className="fas fa-draw-polygon" />
+    <i class="fa-solid fa-draw-polygon"></i>
     </button>
     <button type="button" className="action-btn clear-btn" aria-label="Clear" data-tooltip="Clear" onClick={onClearClick}>
-      <i className="fas fa-undo" />
+      <i className="fa-solid fa-undo" />
     </button>
     <button type="button" className="action-btn" aria-hidden="true" />
   </div>

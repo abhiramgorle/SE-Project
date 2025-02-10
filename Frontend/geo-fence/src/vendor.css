@@ -1,0 +1,30 @@
+.pac-container {
+  box-shadow: 10px 5px 20px rgb(0 0 0 / 19%), 0 1px 5px rgb(0 0 0 / 23%) !important;
+}
+
+/* modal styles */
+.swal2-confirm {
+  padding: 6px 18px !important;
+  font-size: 0.9em !important;
+  background: #3f3d55 !important;
+  border: none !important;
+  border-left-color: #fff !important;
+  border-radius: 5px !important;
+  transition: background 0.3s !important;
+}
+
+.swal2-confirm:hover {
+  background: #fe6347 !important;
+}
+
+.swal2-styled:focus {
+  box-shadow: none !important;
+}
+
+.swal2-title {
+  margin-top: 10px;
+  font-size: 1em !important;
+  font-weight: normal !important;
+  font-stretch: expanded;
+  letter-spacing: 0.05em;
+}
