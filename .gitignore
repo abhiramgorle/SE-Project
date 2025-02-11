@@ -21,3 +21,7 @@ Frontend/geo-fence/node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+*.db
+.env
+.DS_Store
