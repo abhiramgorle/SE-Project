@@ -44,9 +44,9 @@ func main() {
     // Middleware
     router.Use(loggingMiddleware)
 
-    // Setup CORS
+    // Enhanced CORS setup for frontend integration
     c := cors.New(cors.Options{
-        AllowedOrigins: []string{"*"},
+        AllowedOrigins: []string{"http://localhost:3000", "http://localhost:5173"}, // React and Vite default ports
         AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
         AllowedHeaders: []string{"Content-Type", "Authorization", "X-Requested-With"},
         AllowCredentials: true,
@@ -61,6 +61,7 @@ func main() {
 
     // Start server
     log.Printf("Server starting on port %s...\n", port)
+    log.Printf("Backend ready for frontend integration at http://localhost:%s\n", port)
     log.Fatal(http.ListenAndServe(":"+port, c.Handler(router)))
 }
 
