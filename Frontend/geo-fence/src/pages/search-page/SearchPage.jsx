@@ -5,7 +5,8 @@ import Swal from 'sweetalert2';
 import FloatingActions from 'components/floating-actions/FloatingActions';
 import { MapLoadedContext } from 'context/MapLoadedContext';
 import {
-  
+  initInfoWindowCarousel,
+  getInfoWindowTemplate,
   searchInPolygon,
   getPolyBounds
 } from 'utils/mapUtils';
@@ -34,7 +35,52 @@ const SearchPage = () => {
   
 
 
+  const getPlaceDetails = useCallback(
+    (marker, infoWindow) => {
+      // marker bounce effect
+      markersRef.current.forEach(m => {
+        // bounce only the marker which matches the current clicked marker
+        if (m.id === marker.id) {
+          m.setAnimation(window.google.maps.Animation.BOUNCE);
+        } else {
+          m.setAnimation(null);
+        }
+      });
 
+      // create a place service to get details on the places
+      const service = new window.google.maps.places.PlacesService(map);
+      service.getDetails({ placeId: marker.id }, (place, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          infoWindow.marker = marker;
+
+          const template = getInfoWindowTemplate(place);
+          infoWindow.setContent(template);
+          infoWindow.open(map, marker);
+
+          // dynamically attach event listeners to btns once infowindow is ready
+          window.google.maps.event.addListener(infoWindow, 'domready', () => {
+            const photos = [];
+            if (place.photos) {
+              place.photos.forEach(photo => {
+                photos.push(photo.getUrl({ maxHeight: 100, maxWidth: 200 }));
+              });
+            }
+            // for the photo carousel
+            initInfoWindowCarousel(photos);
+          });
+
+          // clearing marker on closing infowindow
+          window.google.maps.event.addListenerOnce(infoWindow, 'closeclick', () => {
+            infoWindow.marker = null;
+            marker.setAnimation(null);
+            
+            sidebarRef.current.close();
+          });
+        }
+      });
+    },
+    [map]
+  );
   
   
   const createMarkers = useCallback(
