@@ -144,8 +144,9 @@ func TestInvalidRegister(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &response)
 	assert.NoError(t, err)
 
-	// Check error response
-	assert.NotNil(t, response["error"])
+	// Check error response - updated to match your API format
+	assert.Equal(t, "error", response["status"])
+	assert.NotNil(t, response["message"])
 }
 
 func TestInvalidLogin(t *testing.T) {
@@ -189,6 +190,7 @@ func TestInvalidLogin(t *testing.T) {
 	err := json.Unmarshal(rr.Body.Bytes(), &response)
 	assert.NoError(t, err)
 
-	// Check error response
-	assert.NotNil(t, response["error"])
+	// Check error response - updated to match your API format
+	assert.Equal(t, "error", response["status"])
+	assert.NotNil(t, response["message"])
 }
