@@ -186,3 +186,29 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
     user.Password = ""
     utils.RespondWithSuccess(w, http.StatusOK, user)
 }
+
+// DeleteAccount deletes a user account
+func DeleteAccount(w http.ResponseWriter, r *http.Request) {
+    userID := r.URL.Query().Get("user_id")
+    if userID == "" {
+        utils.RespondWithError(w, http.StatusBadRequest, "User ID is required")
+        return
+    }
+
+    var user models.User
+    if err := database.DB.First(&user, userID).Error; err != nil {
+        utils.RespondWithError(w, http.StatusNotFound, "User not found")
+        return
+    }
+
+    // Delete related data
+    database.DB.Where("user_id = ?", userID).Delete(&models.Geofence{})
+    
+    // Delete user
+    if err := database.DB.Delete(&user).Error; err != nil {
+        utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting user")
+        return
+    }
+
+    utils.RespondWithSuccess(w, http.StatusNoContent, nil)
+}
