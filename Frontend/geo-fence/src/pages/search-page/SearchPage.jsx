@@ -7,6 +7,7 @@ import { MapLoadedContext } from 'context/MapLoadedContext';
 import {
   initInfoWindowCarousel,
   getInfoWindowTemplate,
+  initStreetView,
   searchInPolygon,
   getPolyBounds
 } from 'utils/mapUtils';
@@ -67,19 +68,22 @@ const SearchPage = () => {
             }
             // for the photo carousel
             initInfoWindowCarousel(photos);
+            // for fetching the street view
+            initStreetView(place, infoWindow);
           });
 
           // clearing marker on closing infowindow
           window.google.maps.event.addListenerOnce(infoWindow, 'closeclick', () => {
             infoWindow.marker = null;
             marker.setAnimation(null);
-            
+            // clearing the set listeners
+            resetListeners();
             sidebarRef.current.close();
           });
         }
       });
     },
-    [map]
+    [map, resetListeners, checkDestinationMarker]
   );
   
   

@@ -68,6 +68,64 @@ export const initInfoWindowCarousel = photos => {
   }
 };
 
+export const initStreetView = (place, infoWindow) => {
+  const streetBtn = document.querySelector('.btn-street');
+  if (streetBtn) {
+    streetBtn.addEventListener('click', () => {
+      // get the nearest street view from position at radius of 50 meters
+      const radius = 50;
+      // this function is used to get panorama shot for the given location
+      new window.google.maps.StreetViewService().getPanoramaByLocation(place.geometry.location, radius, (data, status) => {
+        if (status === window.google.maps.StreetViewStatus.OK) {
+          // the location
+          const location = data.location.latLng;
+          const heading = window.google.maps.geometry.spherical.computeHeading(location, place.geometry.location);
+          infoWindow.setContent(`
+             <div class="street-main">
+               <div class="street-top">
+                 <button class="back-btn"><li><i class="fa fa-arrow-left"></i></li></button>
+                 <div class="street-head">${place.name}</div>
+               </div>
+               <div class="street-info">Nearest Streetview</div>
+               <div class="street-pano">
+                 <div id="pano"></div>
+               </div>
+             </div>
+          `);
+          const panoramaOptions = {
+            position: location,
+            pov: { heading, pitch: 10 },
+            controlSize: 27,
+            motionTrackingControl: false,
+            motionTracking: false,
+            linksControl: false,
+            panControl: false,
+            enableCloseButton: false,
+          };
+          // eslint-disable-next-line no-new
+          new window.google.maps.StreetViewPanorama(document.querySelector('#pano'), panoramaOptions);
+        } else {
+          infoWindow.setContent(`
+            <button class="back-btn">
+              <li><i class="fa fa-arrow-left"></i></li>
+            </button>
+            <span class="street-head">${place.name}</span>
+            <p align="center">No Street View Found</p>
+          `);
+        }
+        // for the back btn
+        const backBtn = document.querySelector('.back-btn');
+        if (backBtn) {
+          backBtn.addEventListener('click', () => {
+            const template = getInfoWindowTemplate(place);
+            infoWindow.setContent(template);
+          });
+        }
+      });
+    });
+  }
+};
+
 export const getPolyBounds = polygon => {
   if (polygon) {
     const polyBounds = new window.google.maps.LatLngBounds();
