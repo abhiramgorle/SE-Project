@@ -25,9 +25,7 @@ func main() {
 
 	// Create router
 	router := mux.NewRouter()
-	// Add this route to your router setup
-    r.HandleFunc("/api/geofences/search", handlers.SearchGeofencesByName).Methods("GET")
-	
+
 	// Root handler for welcome page
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
