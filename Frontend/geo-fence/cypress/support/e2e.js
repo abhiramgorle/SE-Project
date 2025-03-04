@@ -14,4 +14,60 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
+// cypress/support/e2e.js
+// Import commands.js using ES2015 syntax:
+import './commands';
+
+// Mock Google Maps API
+Cypress.on('window:before:load', (win) => {
+  win.google = {
+    maps: {
+      places: {
+        Autocomplete: class {
+          constructor() {
+            return {
+              addListener: (event, cb) => {
+                this.callback = cb;
+                return { remove: () => {} };
+              },
+              getPlace: () => ({
+                geometry: {
+                  location: {
+                    lat: () => 37.7749,
+                    lng: () => -122.4194
+                  }
+                }
+              })
+            };
+          }
+        },
+        SearchBox: class {
+          constructor() {
+            return {
+              addListener: () => ({ remove: () => {} }),
+              getPlaces: () => [{
+                geometry: {
+                  location: {
+                    lat: () => 37.7749,
+                    lng: () => -122.4194
+                  }
+                }
+              }]
+            };
+          }
+        }
+      },
+      Geocoder: class {
+        geocode(request, callback) {
+          callback([{
+            geometry: {
+              location: { lat: () => 37.7749, lng: () => -122.4194 }
+            }
+          }], 'OK');
+        }
+      },
+      GeocoderStatus: { OK: 'OK' },
+      Map: class {},
+    }
+  };
+});
