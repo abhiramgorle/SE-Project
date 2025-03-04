@@ -40,7 +40,11 @@ export const getInfoWindowTemplate = place => {
         ${place.formatted_phone_number ? `<div class="info-phn"><span>Phone: </span>${place.formatted_phone_number}</div>` : ''}
         ${place.rating ? `<div class="info-star">${place.rating}<li><i class="fa fa-star"></i></li></div>` : ''}
         ${place.reviews && place.url ? getReviewTemplate(place.reviews, place.url) : ''}
-        ${place.photos?.length ? getPhotoTemplate(place.photos[0].getUrl({ maxHeight: 100, maxWidth: 200 })) : ''}       
+        ${place.photos?.length ? getPhotoTemplate(place.photos[0].getUrl({ maxHeight: 100, maxWidth: 200 })) : ''}
+        <div class="info-btns">
+          <button class="btn-street">Street View</button>
+          <button class="btn-route">Show route</button>
+        </div>
       </div>
     `;
 };
@@ -126,6 +130,27 @@ export const initStreetView = (place, infoWindow) => {
   }
 };
 
+export const getInfoWindowRouteTemplate = () => `
+  <div class="route-main">
+    <select id="mode">
+      <option value="DRIVING">Drive</option>
+      <option value="WALKING">Walk</option>
+      <option value="BICYCLING">Bike</option>
+      <option value="TRANSIT">Transit</option>
+    </select>
+    <button class="show-btn">Show</button>
+  </div>
+`;
+
+export const getInfoWindowDirectionTemplate = (place, result) => `
+  <span class="place-name">${place.name} </span>is
+  <span class="place-duration"> ${result.duration.text} </span>away, at
+  <span class="place-distance"> ${result.distance.text}</span>
+  <div class="direction-btn-ctn">
+    <button class="direction-btn">Directions</button>
+  </div>
+`;
+
 export const getPolyBounds = polygon => {
   if (polygon) {
     const polyBounds = new window.google.maps.LatLngBounds();
@@ -160,5 +185,73 @@ export const searchInPolygon = (map, markers, polygon) => {
   if (!found) {
     // this popup occurs too fast so slow it down for polygon editing to complete
     setTimeout(() => Swal.fire('Please expand your selection or select new area'), 500);
+  }
+};
+
+// plot the route to destination
+export const plotRoute = (routeMarkerRef, directionsDisplayRef, map, place, infoWindow, sidebarRef) => {
+  if (routeMarkerRef.current) {
+    window.google.maps.event.addListenerOnce(routeMarkerRef.current, 'click', () => {
+      if (routeMarkerRef.current) {
+        routeMarkerRef.current.setMap(null);
+        routeMarkerRef.current = null;
+        if (directionsDisplayRef.current) {
+          directionsDisplayRef.current.setMap(null);
+          directionsDisplayRef.current = null;
+        }
+      }
+    });
+    infoWindow.setContent(getInfoWindowRouteTemplate());
+    const showBtn = document.querySelector('.show-btn');
+    if (showBtn) {
+      showBtn.addEventListener('click', () => {
+        const mode = document.getElementById('mode').value;
+        const directionsService = new window.google.maps.DirectionsService();
+        // get the direction between the route and destination
+        directionsService.route(
+          {
+            origin: routeMarkerRef.current.position,
+            destination: place.geometry.location,
+            travelMode: window.google.maps.TravelMode[mode],
+          },
+          (response, status) => {
+            if (status === window.google.maps.DirectionsStatus.OK) {
+              directionsDisplayRef.current = new window.google.maps.DirectionsRenderer({
+                map,
+                directions: response,
+                draggable: false,
+                suppressMarkers: true,
+                hideRouteList: true,
+                polylineOptions: {
+                  strokeColor: '#fe6347',
+                  strokeWeight: 3.5,
+                  editable: false,
+                  zIndex: 10,
+                },
+              });
+              const result = response.routes[0].legs[0];
+              if (place.name && result.duration.text && result.distance.text) {
+                infoWindow.setContent(getInfoWindowDirectionTemplate(place, result));
+              } else {
+                infoWindow.setContent('<span>Route not available for this place</span>');
+              }
+
+              const dirBtn = document.querySelector('.direction-btn');
+              if (dirBtn) {
+                dirBtn.addEventListener('click', () => {
+                  sidebarRef.current.getContentRef().current.innerHTML = '';
+                  if (directionsDisplayRef.current) {
+                    directionsDisplayRef.current.setPanel(sidebarRef.current.getContentRef().current);
+                  }
+                  sidebarRef.current.open();
+                });
+              }
+            } else {
+              Swal.fire('Unable to get direction for that location');
+            }
+          }
+        );
+      });
+    }
   }
 };
