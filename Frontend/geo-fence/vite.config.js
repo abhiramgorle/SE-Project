@@ -11,7 +11,7 @@ import strip from '@rollup/plugin-strip';
 import { visualizer } from 'rollup-plugin-visualizer';
 import getTargetBrowsers from 'browserslist-to-esbuild';
 import { paramCase } from 'change-case';
-import {  PWA_CONFIG } from './appConfig';
+import { PWA_CONFIG } from './appConfig';
 
 export default defineConfig(({ mode }) => {
   const isProd = mode === 'production';
@@ -84,5 +84,33 @@ export default defineConfig(({ mode }) => {
         ],
       },
     },
+    // Testing configuration for Vitest
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./src/setupTests.js'],
+      css: true,
+      coverage: {
+        reporter: ['text', 'json', 'html'],
+        exclude: [
+          'node_modules/',
+          'src/setupTests.js',
+          '**/*.d.ts',
+          '**/*.config.js',
+          'dist/**'
+        ]
+      },
+      include: ['src/**/*.{test,spec}.{js,jsx}'],
+      exclude: ['cypress/**/*', 'node_modules/**/*'],
+      transformMode: {
+        web: [/\.[jt]sx?$/],
+      },
+      // Needed for proper CSS Modules support in tests
+      css: {
+        modules: {
+          classNameStrategy: 'non-scoped',
+        },
+      },
+    }
   };
 });
