@@ -17,7 +17,16 @@
    - Added middleware to facilitate communication with the frontend
    - Standardized API response format for consistent frontend handling
 
-## API Documentation
+## Frontend Cypress Tests
+We have created an end to end testing for the landing page to search a place and see if the google api is picking it and loading the page.
+
+## Frontend Unit Tests
+- getUserLocation - Tests the accesing of user location through request
+- LandingPage - Tests retrieving of all elements in LandingPage
+- mapUtils - Tests all functions of maps like retrieving photos, directions and reviews.
+- SearchPage - Tests the searchPage functionalities of location pins
+
+## Backend API Documentation
 
 ### Base URL
 ```
@@ -356,7 +365,7 @@ All endpoints return responses in the following JSON format:
   - `400`: Missing or invalid user ID
   - `500`: Server error
 
-## Unit Tests
+## Backend Unit Tests
 
 We have implemented the following unit tests:
 
