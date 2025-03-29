@@ -2,13 +2,42 @@ package middleware
 
 import (
 	"context"
+	"geofence/internal/utils"
 	"net/http"
 	"strings"
+	"time"
 
-	"geofence/internal/utils"
+	"github.com/dgrijalva/jwt-go"
 )
 
-// AuthMiddleware checks for authentication token
+var jwtKey = []byte("your_secure_jwt_secret") // Change this to a secure key in production
+
+// Claims represents JWT claims
+type Claims struct {
+	UserID uint `json:"user_id"`
+	jwt.StandardClaims
+}
+
+// GenerateToken creates a new JWT token for a user
+func GenerateToken(userID uint) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour)
+	claims := &Claims{
+		UserID: userID,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+// AuthMiddleware checks for valid JWT tokens
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -24,28 +53,20 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		token := tokenParts[1]
-		// For Sprint 2, we're using a simple token validation
-		// In Sprint 3, implement proper JWT validation
+		tokenString := tokenParts[1]
+		claims := &Claims{}
 
-		// Set user ID in context for handlers to use
-		ctx := context.WithValue(r.Context(), "userID", uint(1))
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
 
-// CORSMiddleware handles CORS preflight requests
-func CORSMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
+		if err != nil || !token.Valid {
+			utils.RespondWithError(w, http.StatusUnauthorized, "Invalid or expired token")
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		// Set user ID in context for handlers to use
+		ctx := context.WithValue(r.Context(), "userID", claims.UserID)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
