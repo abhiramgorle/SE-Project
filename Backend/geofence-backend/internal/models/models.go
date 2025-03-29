@@ -27,7 +27,7 @@ type Content struct {
     gorm.Model
     Title       string `json:"title"`
     Description string `json:"description"`
-    Type        string `json:"type"`
+    Type        string `json:"type"` // "text", "image", "video", etc.
     URL         string `json:"url,omitempty"`
     GeofenceID  uint   `json:"geofence_id"`
 }
