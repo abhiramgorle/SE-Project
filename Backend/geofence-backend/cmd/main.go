@@ -4,11 +4,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"geofence/internal/database"
+	"geofence/internal/handlers"
+	"geofence/internal/middleware"
+
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
-	"geofence/internal/database"
-	"geofence/internal/handlers"
 )
 
 func main() {
@@ -25,7 +28,7 @@ func main() {
 
 	// Create router
 	router := mux.NewRouter()
-
+	
 	// Root handler for welcome page
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
@@ -73,6 +76,12 @@ func main() {
 					<p><code>GET /api/geofences/nearby?lat={latitude}&lng={longitude}</code></p>
 					<p>Find geofences near specified coordinates.</p>
 				</div>
+
+				<div class="endpoint">
+					<h3>Content Management</h3>
+					<p><code>GET /api/contents?geofence_id={id}</code></p>
+					<p>Get all content for a specific geofence.</p>
+				</div>
 			</body>
 			</html>
 		`))
@@ -81,17 +90,35 @@ func main() {
 	// API routes
 	apiRouter := router.PathPrefix("/api").Subrouter()
 
-	// User routes
+	// Public routes (no auth required)
 	apiRouter.HandleFunc("/register", handlers.Register).Methods("POST")
 	apiRouter.HandleFunc("/login", handlers.Login).Methods("POST")
 	
+	// Protected routes (auth required)
+	protectedRouter := apiRouter.PathPrefix("").Subrouter()
+	protectedRouter.Use(middleware.AuthMiddleware)
+	
 	// Geofence routes - Order matters!
-	apiRouter.HandleFunc("/geofences/nearby", handlers.GetNearbyGeofences).Methods("GET")
-	apiRouter.HandleFunc("/geofences", handlers.CreateGeofence).Methods("POST")
-	apiRouter.HandleFunc("/geofences", handlers.GetGeofences).Methods("GET")
-	apiRouter.HandleFunc("/geofences/{id}", handlers.GetGeofence).Methods("GET")
-	apiRouter.HandleFunc("/geofences/{id}", handlers.UpdateGeofence).Methods("PUT")
-	apiRouter.HandleFunc("/geofences/{id}", handlers.DeleteGeofence).Methods("DELETE")
+	apiRouter.HandleFunc("/geofences/nearby", handlers.GetNearbyGeofences).Methods("GET") // Public
+	protectedRouter.HandleFunc("/geofences", handlers.CreateGeofence).Methods("POST")
+	apiRouter.HandleFunc("/geofences", handlers.GetGeofences).Methods("GET") // Public
+	apiRouter.HandleFunc("/geofences/{id}", handlers.GetGeofence).Methods("GET") // Public
+	protectedRouter.HandleFunc("/geofences/{id}", handlers.UpdateGeofence).Methods("PUT")
+	protectedRouter.HandleFunc("/geofences/{id}", handlers.DeleteGeofence).Methods("DELETE")
+
+	// Content routes
+	protectedRouter.HandleFunc("/contents", handlers.CreateContent).Methods("POST")
+	apiRouter.HandleFunc("/contents", handlers.GetContents).Methods("GET") // Public
+	apiRouter.HandleFunc("/contents/{id}", handlers.GetContent).Methods("GET") // Public
+	protectedRouter.HandleFunc("/contents/{id}", handlers.UpdateContent).Methods("PUT")
+	protectedRouter.HandleFunc("/contents/{id}", handlers.DeleteContent).Methods("DELETE")
+
+	// User profile route
+	protectedRouter.HandleFunc("/profile", handlers.GetUserProfile).Methods("GET")
+
+	// Stats routes
+	apiRouter.HandleFunc("/stats/user", handlers.GetUserStats).Methods("GET")
+	apiRouter.HandleFunc("/stats/system", handlers.GetSystemStats).Methods("GET")
 
 	// Middleware
 	router.Use(loggingMiddleware)
