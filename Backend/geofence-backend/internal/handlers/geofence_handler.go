@@ -195,7 +195,3 @@ func GetUserGeofences(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithSuccess(w, http.StatusOK, geofences)
 }
-
-// Add this to your main.go routes:
-// apiRouter.HandleFunc("/geofences/search", handlers.SearchGeofences).Methods("GET")
-// protectedRouter.HandleFunc("/geofences/user", handlers.GetUserGeofences).Methods("GET")
