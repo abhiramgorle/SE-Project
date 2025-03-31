@@ -1,7 +1,7 @@
 import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
 import { cx } from '@linaria/core';
 import { CSSTransition } from 'react-transition-group';
-import { openBtn, closeBtnWrapper, closeBtn, sidebarContentContainer, sidebarContent, routeInfo } from './Sidebar.styles';
+import './Sidebar.css';
 
 const Sidebar = forwardRef((_, ref) => {
   const [isOpen, setOpen] = useState(false);
@@ -33,15 +33,22 @@ const Sidebar = forwardRef((_, ref) => {
   );
 
   return (
-    <div>
+    <>
       <button
         type="button"
-        className={cx(openBtn, 'animate__animated', 'animate__slideInLeft', 'animate__faster')}
+        className={cx(
+          'sidebar-open-btn',
+          'animate__animated',
+          'animate__slideInLeft',
+          'animate__faster'
+        )}
         title="Directions"
         onClick={openSidebar}
+        aria-label="Open directions"
       >
-        <i className="fas fa-directions" />
+        <i className="fas fa-directions"></i>
       </button>
+      
       <CSSTransition
         nodeRef={animatedRef}
         in={isOpen}
@@ -51,20 +58,32 @@ const Sidebar = forwardRef((_, ref) => {
           exit: 'd-block',
           exitActive: 'animate__animated animate__slideOutLeft animate__faster',
         }}
-        addEndListener={done => animatedRef.current.addEventListener('transitionend', done, false)}
+        timeout={500}
+        unmountOnExit
       >
-        <div ref={animatedRef} className={sidebarContentContainer}>
-          <div className={closeBtnWrapper}>
-            <button type="button" className={closeBtn} onClick={closeSidebar}>
-              <i className="fas fa-times" />
+        <div ref={animatedRef} className="sidebar-container">
+          <div className="sidebar-header">
+            <h2 className="sidebar-title">Directions</h2>
+            <button 
+              type="button" 
+              className="sidebar-close-btn" 
+              onClick={closeSidebar} 
+              aria-label="Close sidebar"
+            >
+              <i className="fas fa-times"></i>
             </button>
           </div>
-          <div ref={contentRef} className={sidebarContent}>
-            <p className={routeInfo}>Select route to display directions</p>
+          
+          <div ref={contentRef} className="sidebar-content">
+            <div className="sidebar-empty-state">
+              <i className="fas fa-directions"></i>
+              <p>Select a place and route to display directions</p>
+              <small>First select a place, then click "Show Route" to see turn-by-turn directions</small>
+            </div>
           </div>
         </div>
       </CSSTransition>
-    </div>
+    </>
   );
 });
 
