@@ -1,5 +1,3 @@
-// internal/handlers/advanced_search_handler.go
-
 package handlers
 
 import (
