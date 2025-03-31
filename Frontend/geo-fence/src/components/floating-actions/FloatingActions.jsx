@@ -1,21 +1,33 @@
-import PropTypes from 'prop-types';
-import './FloatingActions.css';
+import React from 'react';
+import { cx } from '@linaria/core';
+import './FloatingActions.css'; // We'll create this CSS file
 
-const FloatingActions = ({ onDrawClick, onClearClick }) => (
-  <div className="floating-actions">
-    <button type="button" className="action-btn draw-btn" aria-label="Draw" data-tooltip="Draw" onClick={onDrawClick}>
-    <i class="fa-solid fa-draw-polygon"></i>
-    </button>
-    <button type="button" className="action-btn clear-btn" aria-label="Clear" data-tooltip="Clear" onClick={onClearClick}>
-      <i className="fa-solid fa-undo" />
-    </button>
-    <button type="button" className="action-btn" aria-hidden="true" />
-  </div>
-);
-
-FloatingActions.propTypes = {
-  onDrawClick: PropTypes.func.isRequired,
-  onClearClick: PropTypes.func.isRequired,
+const FloatingActions = ({ onDrawClick, onClearClick }) => {
+  return (
+    <div className="floating-actions-container">
+      <div className="tooltip-wrapper">
+        <button 
+          className="action-button draw-btn" 
+          onClick={onDrawClick}
+          aria-label="Draw search area"
+        >
+          <i className="fas fa-draw-polygon"></i>
+        </button>
+        <div className="tooltip">Draw Area</div>
+      </div>
+      
+      <div className="tooltip-wrapper">
+        <button 
+          className="action-button clear-btn" 
+          onClick={onClearClick}
+          aria-label="Clear map"
+        >
+          <i className="fas fa-trash-alt"></i>
+        </button>
+        <div className="tooltip">Clear All</div>
+      </div>
+    </div>
+  );
 };
 
 export default FloatingActions;
