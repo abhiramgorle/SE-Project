@@ -1,38 +1,49 @@
+// Update internal/utils/response.go
 package utils
 
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
-// Response represents a standardized API response format
-type Response struct {
-	Status  string      `json:"status"`
-	Message string      `json:"message,omitempty"`
-	Data    interface{} `json:"data,omitempty"`
+// ErrorResponse represents a standardized error response
+type ErrorResponse struct {
+	Status  string    `json:"status"`
+	Message string    `json:"message"`
+	Error   string    `json:"error,omitempty"`
+	Time    time.Time `json:"timestamp"`
+}
+
+// SuccessResponse represents a standardized success response
+type SuccessResponse struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
+	Time   time.Time   `json:"timestamp"`
 }
 
 // RespondWithError sends a JSON error response
 func RespondWithError(w http.ResponseWriter, code int, message string) {
-	RespondWithJSON(w, code, Response{
+	response := ErrorResponse{
 		Status:  "error",
 		Message: message,
-	})
+		Time:    time.Now(),
+	}
+	
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(response)
 }
 
-// RespondWithSuccess sends a JSON success response with data
+// RespondWithSuccess sends a JSON success response
 func RespondWithSuccess(w http.ResponseWriter, code int, data interface{}) {
-	RespondWithJSON(w, code, Response{
+	response := SuccessResponse{
 		Status: "success",
 		Data:   data,
-	})
-}
-
-// RespondWithJSON sends a JSON response
-func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
+		Time:   time.Now(),
+	}
+	
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*") // Backup CORS header
 	w.WriteHeader(code)
-	w.Write(response)
+	json.NewEncoder(w).Encode(response)
 }
