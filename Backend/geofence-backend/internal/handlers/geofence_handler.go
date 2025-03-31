@@ -156,3 +156,42 @@ func GetNearbyGeofences(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithSuccess(w, http.StatusOK, geofences)
 }
+// Add this to internal/handlers/geofence_handler.go
+
+// SearchGeofences searches for geofences by name or description
+func SearchGeofences(w http.ResponseWriter, r *http.Request) {
+	// Get search query from URL parameters
+	query := r.URL.Query().Get("q")
+	if query == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Search query is required")
+		return
+	}
+
+	var geofences []models.Geofence
+	result := database.DB.Where("name LIKE ? OR description LIKE ?", "%"+query+"%", "%"+query+"%").Find(&geofences)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error searching geofences")
+		return
+	}
+
+	utils.RespondWithSuccess(w, http.StatusOK, geofences)
+}
+
+// GetUserGeofences returns all geofences for a specific user
+func GetUserGeofences(w http.ResponseWriter, r *http.Request) {
+	// Get user ID from context (set by AuthMiddleware)
+	userID, ok := r.Context().Value("userID").(uint)
+	if !ok {
+		utils.RespondWithError(w, http.StatusUnauthorized, "User not authenticated")
+		return
+	}
+
+	var geofences []models.Geofence
+	result := database.DB.Where("user_id = ?", userID).Find(&geofences)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error fetching user geofences")
+		return
+	}
+
+	utils.RespondWithSuccess(w, http.StatusOK, geofences)
+}
