@@ -76,7 +76,6 @@ X-Refresh-Token: <refresh_token>
 - Expand content type support
 
 ## Individual Contributions
-*(Note: Replace with actual team member contributions)*
 - Team Member 1: Authentication system, JWT implementation
 - Team Member 2: Geofence management enhancements
 - Team Member 3: Content management and moderation
