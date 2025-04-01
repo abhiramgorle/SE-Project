@@ -1,145 +1,162 @@
-// internal/handlers/content_rating_handler.go
-
 package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	"geofence/internal/database"
 	"geofence/internal/models"
 	"geofence/internal/utils"
-	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
 )
 
-// ContentRating represents a user rating for content
-type ContentRating struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-	ContentID uint      `json:"content_id"`
-	UserID    uint      `json:"user_id"`
-	Rating    int       `json:"rating"` // 1-5 stars
-	Comment   string    `json:"comment,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-// RateContent allows users to rate content
-func RateContent(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	contentID := params["id"]
-
-	// Get user ID from context
-	userID, ok := r.Context().Value("userID").(uint)
-	if !ok {
-		utils.RespondWithError(w, http.StatusUnauthorized, "User not authenticated")
-		return
-	}
-
-	var rating ContentRating
-	if err := json.NewDecoder(r.Body).Decode(&rating); err != nil {
+// CreateContent handles the creation of new content for a geofence
+func CreateContent(w http.ResponseWriter, r *http.Request) {
+	var content models.Content
+	if err := json.NewDecoder(r.Body).Decode(&content); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	// Validate rating
-	if rating.Rating < 1 || rating.Rating > 5 {
-		utils.RespondWithError(w, http.StatusBadRequest, "Rating must be between 1 and 5")
+	// Validate required fields
+	if content.Title == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Title is required")
 		return
 	}
 
-	id, err := strconv.Atoi(contentID)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid content ID")
+	if content.GeofenceID == 0 {
+		utils.RespondWithError(w, http.StatusBadRequest, "Geofence ID is required")
 		return
 	}
 
-	// Verify content exists
-	var content models.Content
-	if err := database.DB.First(&content, id).Error; err != nil {
-		utils.RespondWithError(w, http.StatusNotFound, "Content not found")
+	// Verify geofence exists
+	var geofence models.Geofence
+	if err := database.DB.First(&geofence, content.GeofenceID).Error; err != nil {
+		utils.RespondWithError(w, http.StatusNotFound, "Geofence not found")
 		return
 	}
 
-	// Check if user has already rated this content
-	var existingRating ContentRating
-	result := database.DB.Where("content_id = ? AND user_id = ?", id, userID).First(&existingRating)
-	
-	if result.Error == nil {
-		// Update existing rating
-		existingRating.Rating = rating.Rating
-		existingRating.Comment = rating.Comment
-		existingRating.UpdatedAt = time.Now()
-		
-		if err := database.DB.Save(&existingRating).Error; err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "Error updating rating")
-			return
-		}
-		
-		utils.RespondWithSuccess(w, http.StatusOK, existingRating)
+	// Create the content
+	result := database.DB.Create(&content)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error creating content")
 		return
 	}
-	
-	// Create new rating
-	newRating := ContentRating{
-		ContentID: uint(id),
-		UserID:    userID,
-		Rating:    rating.Rating,
-		Comment:   rating.Comment,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-	
-	if err := database.DB.Create(&newRating).Error; err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Error creating rating")
-		return
-	}
-	
-	utils.RespondWithSuccess(w, http.StatusCreated, newRating)
+
+	utils.RespondWithSuccess(w, http.StatusCreated, content)
 }
 
-// GetContentRatings returns all ratings for a content item
-func GetContentRatings(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	contentID := params["id"]
+// GetContents returns all content for a specific geofence
+func GetContents(w http.ResponseWriter, r *http.Request) {
+	geofenceID := r.URL.Query().Get("geofence_id")
 	
-	id, err := strconv.Atoi(contentID)
+	if geofenceID == "" {
+		utils.RespondWithError(w, http.StatusBadRequest, "Geofence ID is required")
+		return
+	}
+
+	var contents []models.Content
+	result := database.DB.Where("geofence_id = ?", geofenceID).Find(&contents)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error fetching contents")
+		return
+	}
+
+	utils.RespondWithSuccess(w, http.StatusOK, contents)
+}
+
+// GetContent returns a specific content by ID
+func GetContent(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+
+	// Convert ID to uint
+	contentID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid content ID")
 		return
 	}
-	
-	// Verify content exists
+
 	var content models.Content
-	if err := database.DB.First(&content, id).Error; err != nil {
+	result := database.DB.First(&content, contentID)
+	if result.Error != nil {
 		utils.RespondWithError(w, http.StatusNotFound, "Content not found")
 		return
 	}
-	
-	var ratings []ContentRating
-	if err := database.DB.Where("content_id = ?", id).Find(&ratings).Error; err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Error fetching ratings")
+
+	utils.RespondWithSuccess(w, http.StatusOK, content)
+}
+
+// UpdateContent updates an existing content
+func UpdateContent(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+
+	// Convert ID to uint
+	contentID, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid content ID")
 		return
 	}
-	
-	// Calculate average rating
-	var totalRating int
-	for _, r := range ratings {
-		totalRating += r.Rating
+
+	var content models.Content
+	if err := json.NewDecoder(r.Body).Decode(&content); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
 	}
-	
-	averageRating := 0.0
-	if len(ratings) > 0 {
-		averageRating = float64(totalRating) / float64(len(ratings))
+
+	// Find the existing content
+	var existingContent models.Content
+	result := database.DB.First(&existingContent, contentID)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusNotFound, "Content not found")
+		return
 	}
-	
-	response := map[string]interface{}{
-		"content_id":     id,
-		"ratings":        ratings,
-		"average_rating": averageRating,
-		"rating_count":   len(ratings),
+
+	// Update fields
+	existingContent.Title = content.Title
+	existingContent.Description = content.Description
+	existingContent.Type = content.Type
+	existingContent.URL = content.URL
+
+	// Save the updated content
+	saveResult := database.DB.Save(&existingContent)
+	if saveResult.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error updating content")
+		return
 	}
-	
-	utils.RespondWithSuccess(w, http.StatusOK, response)
+
+	utils.RespondWithSuccess(w, http.StatusOK, existingContent)
+}
+
+// DeleteContent removes a content by ID
+func DeleteContent(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+
+	// Convert ID to uint
+	contentID, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid content ID")
+		return
+	}
+
+	// Find the content
+	var content models.Content
+	result := database.DB.First(&content, contentID)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusNotFound, "Content not found")
+		return
+	}
+
+	// Delete the content
+	deleteResult := database.DB.Delete(&content)
+	if deleteResult.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error deleting content")
+		return
+	}
+
+	utils.RespondWithSuccess(w, http.StatusNoContent, nil)
 }

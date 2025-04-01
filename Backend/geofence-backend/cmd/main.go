@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"geofence/internal/database"
 	"geofence/internal/handlers"
+	"geofence/internal/database"
 	"geofence/internal/middleware"
 
 	"github.com/gorilla/mux"
@@ -107,11 +107,11 @@ func main() {
 	protectedRouter.HandleFunc("/geofences/{id}", handlers.DeleteGeofence).Methods("DELETE")
 
 	// Content routes
-	protectedRouter.HandleFunc("/contents", handlers.CreateContent).Methods("POST")
-	apiRouter.HandleFunc("/contents", handlers.GetContents).Methods("GET") // Public
-	apiRouter.HandleFunc("/contents/{id}", handlers.GetContent).Methods("GET") // Public
-	protectedRouter.HandleFunc("/contents/{id}", handlers.UpdateContent).Methods("PUT")
-	protectedRouter.HandleFunc("/contents/{id}", handlers.DeleteContent).Methods("DELETE")
+	apiRouter.HandleFunc("/contents", handlers.CreateContent).Methods("POST")
+	apiRouter.HandleFunc("/contents", handlers.GetContents).Methods("GET")
+	apiRouter.HandleFunc("/contents/{id}", handlers.GetContent).Methods("GET")
+	apiRouter.HandleFunc("/contents/{id}", handlers.UpdateContent).Methods("PUT")
+	apiRouter.HandleFunc("/contents/{id}", handlers.DeleteContent).Methods("DELETE")
 
 	// User profile route
 	protectedRouter.HandleFunc("/profile", handlers.GetUserProfile).Methods("GET")
