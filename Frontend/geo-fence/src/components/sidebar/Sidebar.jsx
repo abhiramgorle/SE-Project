@@ -9,6 +9,7 @@ const Sidebar = forwardRef((_, ref) => {
   const contentRef = useRef(null);
 
   const openSidebar = useCallback(() => {
+    console.log('Opening sidebar');
     setOpen(true);
   }, []);
 
@@ -26,6 +27,10 @@ const Sidebar = forwardRef((_, ref) => {
         closeSidebar();
       },
       getContentRef() {
+        // Ensure we always return a valid reference
+        if (!contentRef.current) {
+          console.error('Content ref is null');
+        }
         return contentRef;
       },
     }),
@@ -36,12 +41,7 @@ const Sidebar = forwardRef((_, ref) => {
     <>
       <button
         type="button"
-        className={cx(
-          'sidebar-open-btn',
-          'animate__animated',
-          'animate__slideInLeft',
-          'animate__faster'
-        )}
+        className="sidebar-open-btn"
         title="Directions"
         onClick={openSidebar}
         aria-label="Open directions"
@@ -50,18 +50,19 @@ const Sidebar = forwardRef((_, ref) => {
       </button>
       
       <CSSTransition
-        nodeRef={animatedRef}
-        in={isOpen}
-        classNames={{
-          enter: 'd-block',
-          enterActive: 'animate__animated animate__slideInLeft animate__faster',
-          exit: 'd-block',
-          exitActive: 'animate__animated animate__slideOutLeft animate__faster',
-        }}
-        timeout={500}
-        unmountOnExit
-      >
-        <div ref={animatedRef} className="sidebar-container">
+  nodeRef={animatedRef}
+  in={isOpen}
+  classNames={{
+    enter: 'd-block',
+    enterActive: 'animate__animated animate__slideInLeft animate__faster',
+    exit: 'd-block',
+    exitActive: 'animate__animated animate__slideOutLeft animate__faster',
+  }}
+  timeout={500}
+  unmountOnExit
+  onEntered={() => console.log('Sidebar transition completed')}
+>
+  <div ref={animatedRef} className="sidebar-container">
           <div className="sidebar-header">
             <h2 className="sidebar-title">Directions</h2>
             <button 
