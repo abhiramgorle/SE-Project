@@ -1,5 +1,67 @@
 # Sprint 3 Report - GeoFence Project
 
+## Challenges in Sprint-2 Overcome
+- Implemented complex geospatial querying
+- Enhanced security with robust token management
+- Developed flexible content management system
+- Enhanced UI with better search results showcasing
+- Computation of best possible route in all modes
+
+## Frontend Unit Tests
+
+### Directions Functionality
+- `testDirectionsUI` - Verify directions UI appears when clicking the directions button
+- `testOriginPointSelection` - Test selecting an origin point on the map
+- `testRouteOptionsDisplay` - Validate route options for different travel modes
+- `testStepByStepDirections` - Ensure step-by-step directions display in the sidebar
+- `testRouteClearFunctionality` - Verify route clears when clicking the cancel button
+
+### Floating Actions Component
+- `testFloatingActionButtonsRender` - Ensure floating action buttons render correctly 
+- `testButtonIcons` - Validate correct button icons 
+- `testTooltipsOnHover` - Verify tooltips display on hover
+- `testDrawingModeTrigger` - Ensure drawing mode triggers when draw button is clicked
+- `testClearFunctionTrigger` - Validate clear function triggers when clear button is clicked
+- `testAccessibleButtons` - Confirm buttons are accessible with proper ARIA labels 
+- `testButtonStyling` - Verify proper styling for buttons
+- `testKeyboardFocusStates` - Validate focus states for keyboard navigation
+- `testKeyboardActivation` - Ensure buttons are functional via keyboard activation
+- `testButtonAnimations` - Confirm proper button animations
+
+### Info Window
+- `testPlaceDetailsDisplay` - Verify place details display when clicking on a marker
+- `testStreetViewButtonFunctionality` - Validate street view button functionality
+- `testDirectionsButtonFunctionality` - Ensure directions button works correctly
+
+### Geo-Fence Landing Page
+- `testLandingPageLoad` - Verify landing page loads correctly 
+- `testCitySearchFunctionality` - Ensure city search works as expected 
+- `testCurrentLocationUsage` - Validate using current location functionality
+
+### Polygon Drawing
+- `testDrawingModeInitiation` - Verify drawing mode initiates when clicking the draw button
+- `testPolygonCompletionAndSearchPromptUpdate` - Ensure polygon completes and updates search prompt
+- `testSearchWithinPolygon` - Validate search functionality within the polygon
+- `testPolygonEditUpdatesSearch` - Confirm search updates when polygon is edited
+- `testPolygonClearFunctionality` - Ensure polygon clears when clicking the clear button
+
+### Search Page
+- `testSearchContainerRender` - Verify search container renders correctly
+- `testPlaceSearchFunctionality` - Ensure places are searchable when submitting a query
+- `testDrawingModeInitializationFromSearchPage` - Validate drawing mode initiates from search page draw button
+- `testMapClearFunctionalityFromSearchPage` - Confirm map clears when clicking the clear button on search page
+- `testPlaceDetailsDisplayFromSearchPage` - Verify place details display correctly after a place is found
+- `testReturnToHomePageFunctionalityFromSearchPage` - Ensure returning to home page works as expected 
+
+### Street View Functionality
+- `testStreetViewDisplayOnClick` - Verify street view displays when clicking the street view button
+- `testStreetViewErrorHandling` - Ensure error displays when street view is unavailable
+- `testStreetViewControlsFunctionality` - Validate controls in street view work correctly
+- `testFullscreenToggleInStreetView` - Confirm fullscreen toggling functionality in street view
+- **Note:** One test case related to satellite view rendering will be replaced in Sprint 4.
+
+---
+
 ## Team Achievements
 
 ### Authentication Improvements
@@ -34,23 +96,6 @@
 - `TestContentTypeSupport` - Validate support for different content types
 - `TestContentModeration` - Basic content moderation test cases
 
-## Frontend Unit Tests
-
-### Authentication
-- `testUserLogin` - Verify user login functionality
-- `testTokenManagement` - Test JWT token handling
-- `testAuthErrorHandling` - Validate authentication error scenarios
-
-### Geofence Interactions
-- `testGeofenceCreation` - Verify geofence creation process
-- `testNearbyGeofenceRetrieval` - Test nearby geofence discovery
-- `testGeofenceBoundaryDetection` - Validate geofence entry/exit detection
-
-### Content Management
-- `testContentSubmission` - Verify content submission within geofences
-- `testContentRetrieval` - Test content retrieval functionality
-- `testContentTypeRendering` - Validate rendering of different content types
-
 ## API Documentation Updates
 
 ### New Endpoints
@@ -59,15 +104,8 @@
 - `/geofences/events` - Geofence entry/exit event tracking
 
 ### Authentication Headers
-```http
-Authorization: Bearer <jwt_token>
-X-Refresh-Token: <refresh_token>
-```
-
-## Challenges Overcome
-- Implemented complex geospatial querying
-- Enhanced security with robust token management
-- Developed flexible content management system
+- Authorization: Bearer <jwt_token>
+- X-Refresh-Token: <refresh_token>
 
 ## Future Roadmap
 - Implement advanced content moderation AI
@@ -81,5 +119,6 @@ X-Refresh-Token: <refresh_token>
 - Team Member 3: Content management and moderation
 - Team Member 4: Frontend integration and testing
 
-## Conclusion
-Sprint 3 focused on enhancing the core functionality of our GeoFence application, with significant improvements in authentication, geofence management, and content capabilities.
+## Conclusion  
+Sprint 3 focused on enhancing the core functionality of our GeoFence application, with significant improvements in authentication, geofence management, much better UI and content capabilities, .
+
