@@ -1,6 +1,6 @@
 # Sprint 3 Report - GeoFence Project
 
-## Challenges in SprQ!Q@AAQZ2Zint-2 Overcome
+## Challenges in Sprint-2 Overcome
 - Implemented complex geospatial querying
 - Enhanced security with robust token management
 - Developed flexible content management system
