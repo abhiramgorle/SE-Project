@@ -7,6 +7,16 @@ const FloatingActions = ({ onDrawClick, onClearClick }) => {
     <div className="floating-actions-container">
       <div className="tooltip-wrapper">
         <button 
+          className="action-button content-btn" 
+          onClick={() => window.location.replace("http://localhost:5173/")}
+          aria-label="Content"
+        >
+          <i className="fas fa-user-circle"></i>
+        </button>
+        <div className="tooltip">Content</div>
+      </div>
+      <div className="tooltip-wrapper">
+        <button 
           className="action-button draw-btn" 
           onClick={onDrawClick}
           aria-label="Draw search area"
