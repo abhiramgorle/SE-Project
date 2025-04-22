@@ -1,4 +1,3 @@
-// internal/middleware/cors.go
 package middleware
 
 import (
@@ -9,9 +8,22 @@ import (
 
 func ConfigureCORS() *cors.Cors {
 	return cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "https://yourdomain.com"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowedOrigins: []string{
+			"http://localhost:3000",
+			"https://yourdomain.com",
+		},
+		AllowedMethods: []string{
+			http.MethodGet, 
+			http.MethodPost, 
+			http.MethodPut, 
+			http.MethodDelete, 
+			http.MethodOptions,
+		},
+		AllowedHeaders: []string{
+			"Authorization", 
+			"Content-Type", 
+			"X-Requested-With",
+		},
 		AllowCredentials: true,
 		Debug:            true,
 	})
