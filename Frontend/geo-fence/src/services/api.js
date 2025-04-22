@@ -1,126 +1,110 @@
 // src/services/api.js
-
 const API_BASE_URL = 'http://localhost:8080/api';
 
-export const fetchGeofences = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/geofences`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch geofences');
-    }
-    const data = await response.json();
-    return data.data || [];
-  } catch (error) {
-    console.error('Error fetching geofences:', error);
-    throw error;
-  }
-};
+// Helper function to get authentication token
+const getToken = () => localStorage.getItem('token');
 
-export const fetchNearbyGeofences = async (lat, lng) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/geofences/nearby?lat=${lat}&lng=${lng}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch nearby geofences');
-    }
-    const data = await response.json();
-    return data.data || [];
-  } catch (error) {
-    console.error('Error fetching nearby geofences:', error);
-    throw error;
-  }
-};
+// Enhanced fetch wrapper with authorization
+const apiFetch = async (url, options = {}) => {
+  const token = getToken();
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...options.headers,
+  };
 
-export const createGeofence = async (geofenceData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/geofences`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(geofenceData),
+    const response = await fetch(url, {
+      ...options,
+      headers,
     });
+
     if (!response.ok) {
-      throw new Error('Failed to create geofence');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'An unexpected error occurred');
     }
+
     const data = await response.json();
-    return data.data;
+    return data.data || data;
   } catch (error) {
-    console.error('Error creating geofence:', error);
+    console.error(`API Error: ${error.message}`);
     throw error;
   }
 };
 
-export const updateGeofence = async (id, geofenceData) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/geofences/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(geofenceData),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update geofence');
-    }
-    const data = await response.json();
-    return data.data;
-  } catch (error) {
-    console.error('Error updating geofence:', error);
-    throw error;
-  }
-};
+export const fetchGeofences = () => 
+  apiFetch(`${API_BASE_URL}/geofences`);
 
-export const deleteGeofence = async (id) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/geofences/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete geofence');
-    }
-    return true;
-  } catch (error) {
-    console.error('Error deleting geofence:', error);
-    throw error;
-  }
-};
+export const fetchNearbyGeofences = (lat, lng) => 
+  apiFetch(`${API_BASE_URL}/geofences/nearby?lat=${lat}&lng=${lng}`);
 
-export const registerUser = async (userData) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to register user');
-    }
-    const data = await response.json();
-    return data.data;
-  } catch (error) {
-    console.error('Error registering user:', error);
-    throw error;
-  }
-};
+export const createGeofence = (geofenceData) => 
+  apiFetch(`${API_BASE_URL}/geofences`, {
+    method: 'POST',
+    body: JSON.stringify(geofenceData),
+  });
+
+export const updateGeofence = (id, geofenceData) => 
+  apiFetch(`${API_BASE_URL}/geofences/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(geofenceData),
+  });
+
+export const deleteGeofence = (id) => 
+  apiFetch(`${API_BASE_URL}/geofences/${id}`, {
+    method: 'DELETE',
+  });
+
+export const registerUser = (userData) => 
+  apiFetch(`${API_BASE_URL}/register`, {
+    method: 'POST',
+    body: JSON.stringify(userData),
+  });
 
 export const loginUser = async (credentials) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    const data = await apiFetch(`${API_BASE_URL}/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(credentials),
     });
-    if (!response.ok) {
-      throw new Error('Login failed');
+
+    // Store token and user info
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
     }
-    const data = await response.json();
-    return data.data;
+
+    return data;
   } catch (error) {
-    console.error('Error during login:', error);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     throw error;
   }
+};
+
+export const logout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+};
+
+export const getCurrentUser = () => {
+  const userJson = localStorage.getItem('user');
+  return userJson ? JSON.parse(userJson) : null;
+};
+
+export const isAuthenticated = () => {
+  return !!getToken();
+};
+
+// Map configuration
+export const MAP_CONFIG = {
+  zoom: 14,
+  mapTypeControl: false,
+  fullscreenControl: false,
+  streetViewControl: false,
+  gestureHandling: 'greedy',
+  controlSize: 33,
+  scaleControl: false,
+  disableDefaultUI: true,
 };
