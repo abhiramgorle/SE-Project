@@ -1,14 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
-
+	
 	"geofence/internal/handlers"
 	"geofence/internal/database"
 	"geofence/internal/middleware"
-
+	
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
@@ -98,7 +99,7 @@ func main() {
 	protectedRouter := apiRouter.PathPrefix("").Subrouter()
 	protectedRouter.Use(middleware.AuthMiddleware)
 	
-	// Geofence routes - Order matters!
+	// Geofence routes
 	apiRouter.HandleFunc("/geofences/nearby", handlers.GetNearbyGeofences).Methods("GET") // Public
 	protectedRouter.HandleFunc("/geofences", handlers.CreateGeofence).Methods("POST")
 	apiRouter.HandleFunc("/geofences", handlers.GetGeofences).Methods("GET") // Public
@@ -113,23 +114,21 @@ func main() {
 	apiRouter.HandleFunc("/contents/{id}", handlers.UpdateContent).Methods("PUT")
 	apiRouter.HandleFunc("/contents/{id}", handlers.DeleteContent).Methods("DELETE")
 
-	// User profile route
-	protectedRouter.HandleFunc("/profile", handlers.GetUserProfile).Methods("GET")
-
-	// Stats routes
-	apiRouter.HandleFunc("/stats/user", handlers.GetUserStats).Methods("GET")
-	apiRouter.HandleFunc("/stats/system", handlers.GetSystemStats).Methods("GET")
+	// API health check
+	apiRouter.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "healthy"})
+	}).Methods("GET")
 
 	// Middleware
 	router.Use(loggingMiddleware)
 
 	// Setup CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"}, // Allow any origin for development
+		AllowedOrigins: []string{"http://localhost:3000"}, // Frontend domain
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "Authorization", "X-Requested-With"},
 		AllowCredentials: true,
-		Debug: true,
 	})
 
 	// Get port from environment variable

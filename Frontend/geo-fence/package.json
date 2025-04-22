@@ -1,7 +1,7 @@
 {
-  "name": "geo-fence",
-  "private": true,
-  "version": "0.0.0",
+  "name": "geofence-frontend",
+  "version": "1.0.0",
+  "proxy": "http://localhost:8080",
   "type": "module",
   "scripts": {
     "start": "vite",
