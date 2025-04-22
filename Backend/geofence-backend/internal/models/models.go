@@ -1,6 +1,7 @@
 package models
 
 import (
+	"time"
 	"gorm.io/gorm"
 )
 
@@ -21,4 +22,21 @@ type Geofence struct {
 	Radius      float64   `json:"radius"`
 	UserID      uint      `json:"user_id"`
 	Contents    []Content `json:"contents,omitempty" gorm:"foreignKey:GeofenceID"`
+}
+
+// Remove the Content struct from here since it's already defined in content.go
+type UserPreference struct {
+    gorm.Model
+    UserID              uint   `json:"user_id" gorm:"uniqueIndex"`
+    NotificationsEnabled bool   `json:"notifications_enabled" gorm:"default:true"`
+    DefaultRadius       float64 `json:"default_radius" gorm:"default:500"`
+    Theme               string  `json:"theme" gorm:"default:'light'"`
+    Language            string  `json:"language" gorm:"default:'en'"`
+}
+type ContentInteraction struct {
+	gorm.Model
+	UserID           uint      `json:"user_id"`
+	ContentID        uint      `json:"content_id"`
+	InteractionType  string    `json:"interaction_type"`
+	InteractionTime  time.Time `json:"interaction_time"`
 }
