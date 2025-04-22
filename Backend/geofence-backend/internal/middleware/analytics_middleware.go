@@ -1,4 +1,3 @@
-// internal/middleware/analytics_middleware.go
 package middleware
 
 import (
@@ -6,8 +5,6 @@ import (
 	"time"
 
 	"geofence/internal/database"
-	"geofence/internal/models"
-	"geofence/internal/utils"
 )
 
 // GeofenceVisitTracker tracks user interactions with geofences
