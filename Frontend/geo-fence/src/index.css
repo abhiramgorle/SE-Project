@@ -637,24 +637,63 @@ li {
   color: #5f6368;
 }
 
-.adp-substep {
-  padding: 8px 4px;
+.directions-panel {
+  padding: 0;
+  margin-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  overflow-y: auto;
 }
 
-.adp-substep:hover {
-  background-color: #f8f9fa;
+.adp-placemark {
+  background-color: #f8f9fa !important;
+  border: 1px solid #e0e0e0 !important;
+  margin: 10px 0 !important;
+  border-radius: 4px !important;
 }
 
 .adp-directions {
   width: 100% !important;
+  border-collapse: collapse !important;
 }
 
-.adp-placemark {
-  margin: 8px 0 !important;
+.adp-step, .adp-substep {
+  border-top: 1px solid #f1f1f1 !important;
 }
 
 .adp-stepicon {
-  margin-right: 12px !important;
+  margin-right: 8px !important;
+}
+
+.adp-summary {
+  padding: 12px !important;
+  background-color: #f8f9fa !important;
+  border-radius: 4px !important;
+  margin-bottom: 12px !important;
+}
+
+.adp-legal {
+  font-size: 11px !important;
+  color: #70757a !important;
+  margin-top: 12px !important;
+}
+
+.adp-directions th {
+  background: #f8f9fa !important;
+  padding: 8px !important;
+  text-align: left !important;
+}
+
+.adp-list {
+  background: #fff !important;
+  padding: 10px !important;
+}
+
+.adp-fullwidth {
+  width: 100% !important;
+}
+
+.adp-maneuver {
+  font-weight: 500 !important;
 }
 .route-actions {
   display: flex;

@@ -1,15 +1,23 @@
+<<<<<<< HEAD
+=======
+// internal/config/config.go
+>>>>>>> 56da89969bb36d9b47143d340e6dcfb4932b95b8
 package config
 
 import (
 	"log"
 	"os"
+<<<<<<< HEAD
 	"strconv"
+=======
+>>>>>>> 56da89969bb36d9b47143d340e6dcfb4932b95b8
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
 	DBHost     string
+<<<<<<< HEAD
 	DBPort     int
 	DBUser     string
 	DBPassword string
@@ -20,10 +28,21 @@ type Config struct {
 
 func LoadConfig() *Config {
 	// Load .env file
+=======
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	ServerPort string
+}
+
+func LoadConfig() *Config {
+>>>>>>> 56da89969bb36d9b47143d340e6dcfb4932b95b8
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
 	}
 
+<<<<<<< HEAD
 	// Parse database port
 	dbPort, err := strconv.Atoi(getEnv("DB_PORT", "5432"))
 	if err != nil {
@@ -56,4 +75,14 @@ func getEnv(key, defaultValue string) string {
 		return defaultValue
 	}
 	return value
+=======
+	return &Config{
+		DBHost:     os.Getenv("DB_HOST"),
+		DBPort:     os.Getenv("DB_PORT"),
+		DBUser:     os.Getenv("DB_USER"),
+		DBPassword: os.Getenv("DB_PASSWORD"),
+		DBName:     os.Getenv("DB_NAME"),
+		ServerPort: os.Getenv("SERVER_PORT"),
+	}
+>>>>>>> 56da89969bb36d9b47143d340e6dcfb4932b95b8
 }

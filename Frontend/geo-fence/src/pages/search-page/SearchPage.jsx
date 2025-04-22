@@ -571,10 +571,14 @@ const SearchPage = () => {
       travelMode: window.google.maps.TravelMode[selectedMode],
     }, (response, status) => {
       if (status === window.google.maps.DirectionsStatus.OK) {
+        // Save the route response for later use with the panel
+        const routeResponse = response;
+        const result = routeResponse.routes[0].legs[0];
+        
         // Create renderer for the directions
         directionsDisplayRef.current = new window.google.maps.DirectionsRenderer({
           map,
-          directions: response,
+          directions: routeResponse,
           draggable: false,
           suppressMarkers: true,
           hideRouteList: true,
@@ -585,9 +589,6 @@ const SearchPage = () => {
             zIndex: 10,
           },
         });
-        
-        // Get the leg details
-        const result = response.routes[0].legs[0];
         
         // Show route details
         infoWindow.setContent(`
@@ -610,7 +611,7 @@ const SearchPage = () => {
             </div>
             
             <div class="directions-actions">
-              <button class="view-directions-btn">
+              <button class="view-directions-btn" id="view-directions-btn">
                 <i class="fas fa-list"></i>
                 View Step-by-Step Directions
               </button>
@@ -623,38 +624,65 @@ const SearchPage = () => {
         `);
         
         // Add view directions button functionality
-        const viewDirectionsBtn = document.querySelector('.view-directions-btn');
+        const viewDirectionsBtn = document.getElementById('view-directions-btn');
         if (viewDirectionsBtn) {
           viewDirectionsBtn.addEventListener('click', () => {
-            // Clear existing content
-            sidebarRef.current.getContentRef().current.innerHTML = '';
+            console.log('View directions button clicked');
             
-            // Add a header to the sidebar
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'sidebar-header';
-            headerDiv.innerHTML = `
-              <h2>Directions to ${place.name}</h2>
-              <div class="route-summary">
-                <div class="route-duration">
-                  <i class="fas fa-clock"></i>
-                  <span>${result.duration.text}</span>
-                </div>
-                <div class="route-distance">
-                  <i class="fas fa-road"></i>
-                  <span>${result.distance.text}</span>
-                </div>
-              </div>
-            `;
-            sidebarRef.current.getContentRef().current.appendChild(headerDiv);
-            
-            // Add the directions panel
-            if (directionsDisplayRef.current) {
-              directionsDisplayRef.current.setPanel(sidebarRef.current.getContentRef().current);
-            }
-            
-            // Open the sidebar
+            // First open the sidebar - do this BEFORE adding content
             sidebarRef.current.open();
+            
+            // Small delay to ensure sidebar is open first
+            setTimeout(() => {
+              // Clear existing content in sidebar
+              if (sidebarRef.current && sidebarRef.current.getContentRef() && sidebarRef.current.getContentRef().current) {
+                sidebarRef.current.getContentRef().current.innerHTML = '';
+                
+                // Add a header to the sidebar
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'sidebar-header';
+                headerDiv.innerHTML = `
+                  <h2>Directions to ${place.name}</h2>
+                  <div class="route-summary">
+                    <div class="route-duration">
+                      <i class="fas fa-clock"></i>
+                      <span>${result.duration.text}</span>
+                    </div>
+                    <div class="route-distance">
+                      <i class="fas fa-road"></i>
+                      <span>${result.distance.text}</span>
+                    </div>
+                  </div>
+                `;
+                sidebarRef.current.getContentRef().current.appendChild(headerDiv);
+                
+                // Create a container for the directions
+                const directionsContainer = document.createElement('div');
+                directionsContainer.id = 'directions-panel';
+                directionsContainer.className = 'directions-panel';
+                sidebarRef.current.getContentRef().current.appendChild(directionsContainer);
+                
+                // Create a new renderer specifically for the panel
+                const panelRenderer = new window.google.maps.DirectionsRenderer({
+                  directions: routeResponse,
+                  draggable: false,
+                  hideRouteList: false,
+                  suppressMarkers: true,
+                  panel: directionsContainer,
+                  polylineOptions: {
+                    strokeColor: '#4285F4',
+                    strokeWeight: 5,
+                  },
+                });
+                
+                console.log('Directions added to sidebar');
+              } else {
+                console.error('Sidebar reference or content ref is null');
+              }
+            }, 300); // 300ms delay to ensure sidebar is open
           });
+        } else {
+          console.error('View directions button not found');
         }
         
         // Add cancel button functionality

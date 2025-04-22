@@ -40,6 +40,9 @@
 .clear-btn {
   background: #ea4335;
 }
+.content-btn{
+  background:#1b926c;
+}
 
 .clear-btn:hover {
   background: #d33426;
