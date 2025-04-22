@@ -12,9 +12,8 @@ A location-based application that allows users to create virtual geographic boun
 - User authentication and profile management
 - Create, read, update, and delete geofences
 - Associate multimedia content with geofences
-- Discover nearby geofences based on user location
+- Discover nearby Content based on user location
 - Interactive map visualization
-- Real-time notifications when entering or leaving geofence areas
 
 ## Tech Stack
 
@@ -102,12 +101,6 @@ go test -v ./Unit_tests/...
 ```bash
 cd Frontend/geo-fence
 npm test
-npm run test:coverage
-```
-
-### End-to-End Tests
-```bash
-cd Frontend/geo-fence
 npm run cy:run
 ```
 
@@ -142,8 +135,8 @@ geo-fence/
 
 ## Contributors
 
-- Frontend Team: [Names]
-- Backend Team: [Names]
+- Frontend Team: [Abhiram Gorle, Kushi Vardhan]
+- Backend Team: [Mothish Chowdary Ravilla, Hemanth Kumar]
 ```
 
 ## Sprint4.md
@@ -158,6 +151,7 @@ geo-fence/
 1. **Interactive Map Enhancement**
    - Improved map loading performance
    - Added custom markers for different geofence types
+   - Enhanced Content for a particular section of the region
    - Implemented smooth transitions when navigating between locations
 
 2. **User Interface Refinements**
@@ -173,7 +167,6 @@ geo-fence/
 4. **Content Management**
    - Added support for multimedia content (images, links, text)
    - Implemented content preview feature
-   - Added content organization tools
 
 5. **Authentication & Security**
    - Enhanced login/registration forms with validation
@@ -208,56 +201,68 @@ geo-fence/
    - Created API documentation
    - Added code comments and README
 
-## Frontend Unit and Cypress Tests
+## Frontend Cypress Tests
 
 ### React Component Tests
 
 1. **Authentication Tests**
-   - `Login.test.jsx` - Tests login form submission and validation
-   - `Register.test.jsx` - Tests registration form functionality
-   - `AuthContext.test.jsx` - Tests authentication context behavior
+   - `loginModal.cy.js` - Tests login form submission and validation
+   - `profile.cy.js` - Tests registration form functionality
 
 2. **Geofence Tests**
-   - `GeofenceList.test.jsx` - Tests geofence listing functionality
-   - `GeofenceForm.test.jsx` - Tests creation and editing of geofences
-   - `GeofenceDetail.test.jsx` - Tests detailed view of a geofence
+   - `direction.cy.js` - Tests geofence listing functionality
+   - `polygon_drawing.cy.js` - Tests creation and editing of geofences
+   - `street_view.cy.js` - Tests detailed view of a geofence
 
 3. **Map Component Tests**
-   - `MapComponent.test.jsx` - Tests map initialization and functionality
-   - `LocationSearch.test.jsx` - Tests location search functionality
-   - `GeofenceMarker.test.jsx` - Tests geofence marker rendering
+   - `MapComponent.cy.js` - Tests map initialization and functionality
+   - `LocationSearch.cy.js` - Tests location search functionality
+   - `GeofenceMarker.cy.js` - Tests geofence marker rendering
 
 4. **Content Management Tests**
-   - `ContentList.test.jsx` - Tests content listing
-   - `ContentForm.test.jsx` - Tests content creation and editing
-   - `ContentPreview.test.jsx` - Tests content preview functionality
+   - `ContentList.cy.js` - Tests content listing
+   - `ContentForm.cy.js` - Tests content creation and editing
+   - `videoDetail.cy.js` - Tests content preview functionality
 
 5. **Utility Function Tests**
    - `mapUtils.test.js` - Tests map utility functions
    - `geofenceUtils.test.js` - Tests geofence utility functions
    - `validation.test.js` - Tests form validation functions
 
-### Cypress End-to-End Tests
-
-1. **Authentication Flows**
-   - `auth.spec.js` - Tests user registration, login, and logout flows
-
-2. **Geofence Management**
-   - `geofence_creation.spec.js` - Tests creating new geofences
-   - `geofence_edit.spec.js` - Tests editing existing geofences
-   - `geofence_deletion.spec.js` - Tests deleting geofences
-
-3. **Content Management**
-   - `content_creation.spec.js` - Tests adding content to geofences
-   - `content_interaction.spec.js` - Tests interactions with content
-
-4. **Map Interaction**
-   - `map_navigation.spec.js` - Tests map navigation and interaction
-   - `location_search.spec.js` - Tests location search functionality
-
-5. **User Experience**
-   - `responsive_design.spec.js` - Tests responsive behavior across devices
+6. **User Experience**
+   - `landing.cy.js` - Tests responsive of landing page
    - `error_handling.spec.js` - Tests error scenarios and feedback
+
+#FrontEnd Testing Results
+  Spec                                                    Tests  Passing  Failing  Pending  Skipped
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ×  app-flow.cy.js                           686ms        8        8        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  directions.cy.js                         00:45        5        5        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  floating_actions.cy.js                   00:21       10        10       -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  following.cy.js                          00:39        7        7        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  info_window.cy.js                        00:27        3        3        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ √  landing_page_test.cy.js                  00:03        3        3        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  loginModal.cy.js                         00:38        8        8        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  polygon_drawing.cy.js                    00:10        5        5        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  profile.cy.js                            00:35        6        6        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  search_page.cy.js                        00:36        6        6        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  street_view.cy.js                        00:23        5        5        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  video.cy.js                              00:39        7        7        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ×  videoDetails.cy.js                       00:50        9        9        -        -        - │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    ×  13 of 13 passed (100%)                    06:11       82        82       -        -        -
 
 ## Backend Unit Tests
 
